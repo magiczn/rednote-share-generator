@@ -8,7 +8,7 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
             background: #fafafa;
@@ -16,7 +16,6 @@
             color: #1d1d1f;
         }
 
-        /* 极简卡片 */
         .card {
             width: 375px;
             height: 500px;
@@ -65,7 +64,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* 极简输入 */
         input, textarea {
             background: #f5f5f7;
             border: 1px solid transparent;
@@ -94,7 +92,6 @@
             text-transform: uppercase;
         }
 
-        /* 按钮 */
         .btn-primary {
             background: #0071e3;
             color: white;
@@ -123,7 +120,6 @@
 
         .btn-secondary:hover { background: #e8e8ed; }
 
-        /* 滑块 */
         input[type="range"] {
             -webkit-appearance: none;
             height: 3px;
@@ -141,7 +137,6 @@
             cursor: pointer;
         }
 
-        /* 颜色选择 */
         .color-btn {
             width: 28px;
             height: 28px;
@@ -161,7 +156,6 @@
         </div>
 
         <div class="grid lg:grid-cols-2 gap-12">
-            <!-- 编辑区 -->
             <div class="bg-white rounded-2xl p-8 shadow-sm">
                 <div class="mb-6">
                     <label>色调</label>
@@ -200,12 +194,11 @@
                 </div>
             </div>
 
-            <!-- 预览区 -->
             <div class="flex flex-col items-center">
                 <div class="flex items-center gap-4 mb-6">
-                    <button class="btn-secondary px-4" onclick="prev()"><<</button>
+                    <button class="btn-secondary px-4" onclick="prev()">&lt;&lt;</button>
                     <span class="text-[#86868b]"><span id="pageNum">1</span> / <span id="pageTotal">1</span></span>
-                    <button class="btn-secondary px-4" onclick="next()">>></button>
+                    <button class="btn-secondary px-4" onclick="next()">&gt;&gt;</button>
                 </div>
 
                 <div id="preview"></div>
@@ -230,7 +223,6 @@
             const size = parseInt(document.getElementById('size').value);
             document.getElementById('sizeVal').textContent = size + 'px';
 
-            // 简单分页
             pages = text ? text.split(/\n{2,}/).filter(p => p.trim()) : [''];
             if (pages.length === 0) pages = [''];
 
@@ -248,18 +240,18 @@
             const size = document.getElementById('size').value;
             const date = new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g, '.');
 
-            document.getElementById('preview').innerHTML = \`
-                \u003cdiv class="card" style="background:\${t.bg};">
-                    \u003cdiv class="card-header"\u003e
-                        \u003cdiv class="card-title" style="color:\${t.text}"\u003e\${title}\u003c/div\u003e
-                        \u003cdiv class="card-date"\u003e\${date}\u003c/div\u003e
-                    \u003c/div\u003e
-                    \u003cdiv class="card-content" style="color:\${t.text};font-size:\${size}px"\u003e
-                        \${pages[currentPage].replace(/\n/g, '\u003cbr\u003e')}
-                    \u003c/div\u003e
-                    \u003cdiv class="card-footer"\u003e\${author || ''}\u003c/div\u003e
-                \u003c/div\u003e
-            \`;
+            const html = '<div class="card" style="background:' + t.bg + ';">' +
+                '<div class="card-header">' +
+                    '<div class="card-title" style="color:' + t.text + '">' + title + '</div>' +
+                    '<div class="card-date">' + date + '</div>' +
+                '</div>' +
+                '<div class="card-content" style="color:' + t.text + ';font-size:' + size + 'px">' +
+                    pages[currentPage].replace(/\n/g, '<br>') +
+                '</div>' +
+                '<div class="card-footer">' + (author || '') + '</div>' +
+            '</div>';
+
+            document.getElementById('preview').innerHTML = html;
         }
 
         function prev() { if (currentPage > 0) { currentPage--; render(); } }
@@ -291,7 +283,7 @@
             const el = document.querySelector('.card');
             const canvas = await html2canvas(el, { scale: 2, backgroundColor: null });
             const link = document.createElement('a');
-            link.download = `卡片_\${currentPage + 1}.png`;
+            link.download = '卡片_' + (currentPage + 1) + '.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         }
