@@ -218,13 +218,56 @@
 
         let currentTheme = 'white', currentPage = 0, pages = [''];
 
+        // 智能分页 - 基于字符数
+        function splitPages(text, fontSize) {
+            if (!text.trim()) return [''];
+
+            // 根据字体大小计算每页可容纳的字符数
+            // 卡片尺寸: 375x500, 内边距: 48+32=80(上下), 32+32=64(左右)
+            // 可用区域约: 311x420
+            // 每行字符数 = 311 / (字体大小 * 0.6)  [中文约占0.6em]
+            // 行数 = 420 / (字体大小 * 1.7)
+            const charsPerLine = Math.floor(311 / (fontSize * 0.6));
+            const linesPerPage = Math.floor(420 / (fontSize * 1.7));
+            const charsPerPage = charsPerLine * linesPerPage;
+
+            const pages = [];
+            let remaining = text.trim();
+
+            while (remaining.length > 0) {
+                if (remaining.length <= charsPerPage) {
+                    pages.push(remaining);
+                    break;
+                }
+
+                // 在charsPerPage附近找合适的分割点(优先在段落结束处)
+                let cutPoint = charsPerPage;
+                const searchRange = Math.min(50, Math.floor(charsPerPage * 0.2));
+
+                for (let i = 0; i < searchRange; i++) {
+                    const idx = charsPerPage - i;
+                    if (idx <= 0) break;
+                    const char = remaining[idx];
+                    // 优先在这些标点处分割
+                    if (['\n', '。', '！', '？', '.', '!', '?'].includes(char)) {
+                        cutPoint = idx + 1;
+                        break;
+                    }
+                }
+
+                pages.push(remaining.substring(0, cutPoint));
+                remaining = remaining.substring(cutPoint).trim();
+            }
+
+            return pages.length > 0 ? pages : [''];
+        }
+
         function update() {
             const text = document.getElementById('content').value;
             const size = parseInt(document.getElementById('size').value);
             document.getElementById('sizeVal').textContent = size + 'px';
 
-            pages = text ? text.split(/\n{2,}/).filter(p => p.trim()) : [''];
-            if (pages.length === 0) pages = [''];
+            pages = splitPages(text, size);
 
             currentPage = Math.min(currentPage, pages.length - 1);
             document.getElementById('pageNum').textContent = currentPage + 1;
