@@ -8,6 +8,7 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
 
         * {
             margin: 0;
@@ -17,87 +18,244 @@
 
         body {
             font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a1a1a;
             min-height: 100vh;
+            position: relative;
         }
 
-        /* 3:4 比例容器 */
+        /* 胶片颗粒纹理 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 复古背景色块 */
+        .vintage-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(139, 90, 43, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(160, 82, 45, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(101, 67, 33, 0.05) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        /* 3:4 比例容器 - 拍立得风格 */
         .rednote-page {
             width: 375px;
             height: 500px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
+            background: #f5f1e8;
+            padding: 16px 16px 60px 16px;
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.1),
+                0 10px 20px rgba(0,0,0,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.5);
             position: relative;
             display: flex;
             flex-direction: column;
+            transform: rotate(-1deg);
+            transition: transform 0.3s ease;
         }
 
-        /* 小红书风格配色 */
+        .rednote-page:hover {
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        /* 胶片齿孔效果 */
+        .rednote-page::before,
+        .rednote-page::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 8px;
+            background: #1a1a1a;
+            border-radius: 2px;
+        }
+
+        .rednote-page::before {
+            top: 50%;
+            left: -6px;
+            box-shadow: 0 20px 0 #1a1a1a, 0 -20px 0 #1a1a1a;
+        }
+
+        .rednote-page::after {
+            top: 50%;
+            right: -6px;
+            box-shadow: 0 20px 0 #1a1a1a, 0 -20px 0 #1a1a1a;
+        }
+
+        /* 复古风格头部 */
         .rednote-header {
-            background: linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%);
-            padding: 20px 16px 16px;
-            color: white;
+            background: transparent;
+            padding: 12px 0 16px;
+            color: #3d2914;
+            border-bottom: 2px solid #8b4513;
+            position: relative;
+        }
+
+        .rednote-header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                #8b4513 0px,
+                #8b4513 4px,
+                transparent 4px,
+                transparent 8px
+            );
         }
 
         .rednote-content {
             flex: 1;
-            padding: 16px;
+            padding: 20px 8px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             overflow: hidden;
+            background: #faf8f3;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        /* 纸张纹理 */
+        .rednote-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23paper)' opacity='0.08'/%3E%3C/svg%3E");
+            pointer-events: none;
         }
 
         .rednote-footer {
-            background: linear-gradient(180deg, transparent 0%, rgba(255,36,66,0.05) 100%);
-            padding: 10px 16px 14px;
+            background: transparent;
+            padding: 8px 0;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
-            color: #ff2442;
-            border-top: 1px dashed rgba(255,36,66,0.2);
-            flex-shrink: 0;
+            font-size: 11px;
+            color: #8b4513;
+            font-family: 'Courier Prime', monospace;
+            letter-spacing: 0.5px;
+            position: absolute;
+            bottom: 20px;
+            left: 16px;
+            right: 16px;
         }
 
-        /* 文字样式 */
+        /* 复古文字样式 */
         .content-text {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #333;
+            font-size: 15px;
+            line-height: 1.9;
+            color: #2c1810;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            font-family: 'Noto Sans SC', serif;
+            letter-spacing: 0.3px;
+            position: relative;
+            z-index: 1;
         }
 
         .content-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
-            color: #fff;
+            color: #3d2914;
             margin-bottom: 4px;
+            font-family: 'Noto Sans SC', serif;
+            letter-spacing: 1px;
         }
 
         .content-subtitle {
-            font-size: 12px;
-            color: rgba(255,255,255,0.9);
+            font-size: 11px;
+            color: #8b7355;
+            font-family: 'Courier Prime', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        /* 装饰元素 */
+        /* 复古装饰元素 - 相机图标 */
         .deco-dot {
-            width: 8px;
-            height: 8px;
-            background: #ff2442;
-            border-radius: 50%;
+            width: 14px;
+            height: 10px;
+            background: #8b4513;
+            border-radius: 2px;
             display: inline-block;
-            margin-right: 8px;
+            margin-right: 6px;
+            position: relative;
         }
 
-        /* 输入区域 */
+        .deco-dot::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 3px;
+            background: #8b4513;
+            border-radius: 1px 1px 0 0;
+        }
+
+        /* 日期戳 */
+        .date-stamp {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            background: #ff6b35;
+            color: white;
+            padding: 4px 12px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transform: rotate(-3deg);
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        /* 复古输入区域 */
         .editor-panel {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            background: rgba(245, 241, 232, 0.95);
+            border-radius: 4px;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.2),
+                inset 0 1px 2px rgba(0,0,0,0.1),
+                0 4px 20px rgba(0,0,0,0.3);
+            border: 1px solid rgba(139, 69, 19, 0.2);
+            position: relative;
+        }
+
+        .editor-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 28px,
+                rgba(139, 69, 19, 0.1) 28px,
+                rgba(139, 69, 19, 0.1) 29px
+            );
+            pointer-events: none;
         }
 
         /* 预览区域滚动 */
@@ -107,58 +265,140 @@
             padding: 20px;
         }
 
-        /* 页面指示器 */
+        /* 页面指示器 - 复古胶片计数器 */
         .page-indicator {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 12px;
-            background: rgba(255,36,66,0.1);
-            border-radius: 20px;
+            padding: 6px 14px;
+            background: #1a1a1a;
+            border-radius: 4px;
             font-size: 12px;
-            color: #ff2442;
+            color: #f5f1e8;
             font-weight: 500;
+            font-family: 'Courier Prime', monospace;
+            letter-spacing: 1px;
         }
 
-        /* 自定义滚动条 */
+        /* 自定义滚动条 - 复古风格 */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 3px;
+            background: #2a2a2a;
+            border-radius: 0;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.5);
-            border-radius: 3px;
+            background: #8b4513;
+            border-radius: 0;
+            border: 2px solid #2a2a2a;
         }
 
-        /* 主题色选择 */
+        /* 主题色选择 - 胶片色板 */
         .theme-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 3px solid transparent;
+            width: 36px;
+            height: 36px;
+            border-radius: 2px;
+            border: 2px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
+        }
+
+        .theme-btn::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
         }
 
         .theme-btn.active {
-            border-color: #333;
-            transform: scale(1.1);
+            border-color: #f5f1e8;
+            box-shadow: 0 0 0 2px #1a1a1a, 0 0 0 4px #8b4513;
+            transform: scale(1.05);
         }
 
         /* 缩略图样式 */
         .thumbnail-page {
             transform: scale(0.32);
             transform-origin: top left;
-            margin-bottom: -340px; /* 500 - 500*0.32 = 340 */
+            margin-bottom: -340px;
         }
 
         #thumbnails {
             min-height: 170px;
+        }
+
+        /* 复古输入框样式 */
+        input[type="text"],
+        textarea {
+            background: #faf8f3 !important;
+            border: 1px solid rgba(139, 69, 19, 0.3) !important;
+            border-radius: 2px !important;
+            font-family: 'Noto Sans SC', serif !important;
+            color: #3d2914 !important;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: #8b4513 !important;
+            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1) !important;
+            outline: none !important;
+        }
+
+        /* 复古滑块 */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: rgba(139, 69, 19, 0.2) !important;
+            border-radius: 0 !important;
+            height: 4px !important;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #8b4513;
+            border-radius: 0;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+
+        /* 复古按钮 */
+        .vintage-btn {
+            background: #3d2914 !important;
+            color: #f5f1e8 !important;
+            border-radius: 2px !important;
+            font-family: 'Courier Prime', monospace !important;
+            letter-spacing: 1px !important;
+            text-transform: uppercase !important;
+            border: none !important;
+            box-shadow: 3px 3px 0 #8b4513 !important;
+            transition: all 0.2s !important;
+        }
+
+        .vintage-btn:hover {
+            transform: translate(-1px, -1px) !important;
+            box-shadow: 4px 4px 0 #8b4513 !important;
+        }
+
+        .vintage-btn:active {
+            transform: translate(2px, 2px) !important;
+            box-shadow: 1px 1px 0 #8b4513 !important;
+        }
+
+        .vintage-btn-outline {
+            background: transparent !important;
+            color: #3d2914 !important;
+            border: 2px solid #3d2914 !important;
+            border-radius: 2px !important;
+            font-family: 'Courier Prime', monospace !important;
+            letter-spacing: 1px !important;
         }
 
         /* 响应式 */
@@ -166,10 +406,11 @@
             .rednote-page {
                 width: 280px;
                 height: 373px;
+                padding: 12px 12px 50px 12px;
             }
 
             .content-text {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             .content-title {
@@ -184,11 +425,12 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
+    <div class="vintage-bg"></div>
+    <div class="max-w-7xl mx-auto relative z-10">
         <!-- 标题 -->
         <div class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">📕 小红书文字分享生成器</h1>
-            <p class="text-white/80">将你的文案转换成精美的 3:4 比例图片，适合发布到小红书</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-[#f5f1e8] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 3px; text-shadow: 2px 2px 0 #3d2914;">📷 MEMO GENERATOR</h1>
+            <p class="text-[#f5f1e8]/70" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px;">复古胶片风格文字卡片生成器</p>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-8">
@@ -196,62 +438,62 @@
             <div class="editor-panel p-6">
                 <!-- 主题选择 -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">选择主题色</label>
+                    <label class="block text-sm font-medium text-[#3d2914] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px;">FILM TYPE</label>
                     <div class="flex gap-3" id="themeSelector">
-                        <button class="theme-btn active" data-theme="red" style="background: linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%);"></button>
-                        <button class="theme-btn" data-theme="purple" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);"></button>
-                        <button class="theme-btn" data-theme="blue" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);"></button>
-                        <button class="theme-btn" data-theme="green" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);"></button>
-                        <button class="theme-btn" data-theme="orange" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);"></button>
-                        <button class="theme-btn" data-theme="dark" style="background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);"></button>
+                        <button class="theme-btn active" data-theme="sepia" style="background: #8b4513;" title="Sepia"></button>
+                        <button class="theme-btn" data-theme="kodak" style="background: #ff6b35;" title="Kodak"></button>
+                        <button class="theme-btn" data-theme="fuji" style="background: #2d5a3d;" title="Fuji"></button>
+                        <button class="theme-btn" data-theme="ilford" style="background: #4a4a4a;" title="Ilford"></button>
+                        <button class="theme-btn" data-theme="polaroid" style="background: #1e3a5f;" title="Polaroid"></button>
+                        <button class="theme-btn" data-theme="lomo" style="background: #8b1c3f;" title="Lomo"></button>
                     </div>
                 </div>
 
                 <!-- 标题输入 -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
+                    <label class="block text-xs font-medium text-[#8b7355] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px; text-transform: uppercase;">TITLE</label>
                     <input type="text" id="titleInput" placeholder="输入标题..." value="今日分享"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition">
+                        class="w-full px-4 py-2">
                 </div>
 
                 <!-- 文案输入 -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">文案内容</label>
+                    <label class="block text-xs font-medium text-[#8b7355] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px; text-transform: uppercase;">CONTENT</label>
                     <textarea id="contentInput" rows="10" placeholder="在这里输入你的小红书文案..."
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">内容会自动分页，每页显示适合3:4比例的内容量</p>
+                        class="w-full px-4 py-3 resize-none"></textarea>
+                    <p class="text-xs text-[#8b7355] mt-1" style="font-family: 'Courier Prime', monospace;">AUTO-PAGINATION ENABLED</p>
                 </div>
 
                 <!-- 字体大小调整 -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">字体大小</label>
+                    <label class="block text-xs font-medium text-[#8b7355] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px; text-transform: uppercase;">FONT SIZE</label>
                     <input type="range" id="fontSizeSlider" min="14" max="20" value="16"
-                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>小</span>
+                        class="w-full">
+                    <div class="flex justify-between text-xs text-[#8b7355] mt-1" style="font-family: 'Courier Prime', monospace;">
+                        <span>S</span>
                         <span id="fontSizeValue">16px</span>
-                        <span>大</span>
+                        <span>L</span>
                     </div>
                 </div>
 
                 <!-- 底部文字 -->
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">底部标识（可选）</label>
+                    <label class="block text-xs font-medium text-[#8b7355] mb-2" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px; text-transform: uppercase;">STAMP</label>
                     <input type="text" id="footerInput" placeholder="例如：@小红书账号" value="小红书"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition">
+                        class="w-full px-4 py-2">
                 </div>
 
                 <!-- 下载按钮 -->
                 <div class="flex gap-3">
                     <button id="downloadAllBtn"
-                        class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition shadow-lg flex items-center justify-center gap-2">
+                        class="flex-1 vintage-btn py-3 px-4 font-medium flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        下载全部页面
+                        DOWNLOAD ALL
                     </button>
                     <button id="downloadCurrentBtn"
-                        class="flex-1 bg-white border-2 border-purple-600 text-purple-600 py-3 px-4 rounded-lg font-medium hover:bg-purple-50 transition flex items-center justify-center gap-2">
+                        class="flex-1 vintage-btn-outline py-3 px-4 font-medium flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        下载当前页
+                        SAVE PAGE
                     </button>
                 </div>
             </div>
@@ -259,13 +501,13 @@
             <!-- 右侧：预览区 -->
             <div>
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-white font-semibold text-lg">预览</h2>
+                    <h2 class="text-[#f5f1e8] font-semibold text-lg" style="font-family: 'Courier Prime', monospace; letter-spacing: 2px;">PREVIEW</h2>
                     <div class="flex items-center gap-2">
-                        <button id="prevPage" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition disabled:opacity-50">
+                        <button id="prevPage" class="w-8 h-8 bg-[#3d2914] hover:bg-[#5a3d1f] flex items-center justify-center text-[#f5f1e8] transition disabled:opacity-50" style="font-family: 'Courier Prime', monospace;">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
-                        <span id="pageInfo" class="text-white font-medium">1 / 1</span>
-                        <button id="nextPage" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition disabled:opacity-50">
+                        <span id="pageInfo" class="page-indicator">1 / 1</span>
+                        <button id="nextPage" class="w-8 h-8 bg-[#3d2914] hover:bg-[#5a3d1f] flex items-center justify-center text-[#f5f1e8] transition disabled:opacity-50" style="font-family: 'Courier Prime', monospace;">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </button>
                     </div>
@@ -278,7 +520,7 @@
 
                 <!-- 所有页面缩略图 -->
                 <div class="preview-scroll" id="thumbnailContainer">
-                    <p class="text-white/70 text-sm mb-2 text-center">全部页面缩略图</p>
+                    <p class="text-[#f5f1e8]/70 text-sm mb-2 text-center" style="font-family: 'Courier Prime', monospace; letter-spacing: 1px;">ALL PAGES</p>
                     <div class="flex flex-wrap justify-center gap-3" id="thumbnails">
                         <!-- 缩略图将在这里动态生成 -->
                     </div>
@@ -294,16 +536,16 @@
         // 状态管理
         let currentPage = 0;
         let pages = [];
-        let currentTheme = 'red';
+        let currentTheme = 'sepia';
 
-        // 主题配置
+        // 主题配置 - 复古胶片色调
         const themes = {
-            red: { header: 'linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%)', accent: '#ff2442' },
-            purple: { header: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)', accent: '#8b5cf6' },
-            blue: { header: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', accent: '#3b82f6' },
-            green: { header: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)', accent: '#10b981' },
-            orange: { header: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', accent: '#f59e0b' },
-            dark: { header: 'linear-gradient(135deg, #1f2937 0%, #4b5563 100%)', accent: '#1f2937' }
+            sepia: { header: 'transparent', accent: '#8b4513', borderColor: '#8b4513', bgColor: '#f5f1e8' },
+            kodak: { header: 'transparent', accent: '#ff6b35', borderColor: '#ff6b35', bgColor: '#fff8e7' },
+            fuji: { header: 'transparent', accent: '#2d5a3d', borderColor: '#2d5a3d', bgColor: '#f0f4f0' },
+            ilford: { header: 'transparent', accent: '#4a4a4a', borderColor: '#4a4a4a', bgColor: '#e8e8e8' },
+            polaroid: { header: 'transparent', accent: '#1e3a5f', borderColor: '#1e3a5f', bgColor: '#e8f0f8' },
+            lomo: { header: 'transparent', accent: '#8b1c3f', borderColor: '#8b1c3f', bgColor: '#f8e8ed' }
         };
 
         // DOM 元素
@@ -429,19 +671,23 @@
             return pages.length > 0 ? pages : [''];
         }
 
-        // 生成单页HTML
+        // 生成单页HTML - 复古胶片风格
         function generatePageHTML(content, pageIndex, totalPages, title, footer, theme) {
             const themeConfig = themes[theme];
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
             return `
-                <div class="rednote-page" data-page="${pageIndex}">
-                    <div class="rednote-header" style="background: ${themeConfig.header};">
-                        <div class="content-title">${title}</div>
-                        <div class="content-subtitle">${new Date().toLocaleDateString('zh-CN')}</div>
+                <div class="rednote-page" data-page="${pageIndex}" style="background: ${themeConfig.bgColor};">
+                    <div class="rednote-header" style="border-color: ${themeConfig.borderColor};">
+                        <div class="content-title" style="color: ${themeConfig.accent};">${title}</div>
+                        <div class="content-subtitle">${dateStr}</div>
                     </div>
                     <div class="rednote-content">
                         <div class="content-text">${content.replace(/\n/g, '<br>')}</div>
                     </div>
-                    <div class="rednote-footer" style="color: ${themeConfig.accent}; border-top-color: ${themeConfig.accent}33;">
+                    <div class="date-stamp" style="background: ${themeConfig.accent};">FILM ${String(pageIndex + 1).padStart(2, '0')}</div>
+                    <div class="rednote-footer" style="color: ${themeConfig.accent};">
                         <span class="deco-dot" style="background: ${themeConfig.accent};"></span>
                         <span>${footer}</span>
                         ${totalPages > 1 ? `<span style="margin-left: auto;">${pageIndex + 1} / ${totalPages}</span>` : ''}
@@ -506,7 +752,7 @@
 
                 // 创建缩略图包装器
                 const wrapper = document.createElement('div');
-                wrapper.className = `cursor-pointer transition transform hover:scale-105 ${isCurrentPage ? 'ring-4 ring-white rounded-lg' : 'opacity-70 hover:opacity-100'}`;
+                wrapper.className = `cursor-pointer transition transform hover:scale-105 ${isCurrentPage ? 'ring-2 ring-[#f5f1e8]' : 'opacity-70 hover:opacity-100'}`;
                 wrapper.style.width = '120px';
                 wrapper.innerHTML = thumbnailHTML.replace('rednote-page', 'rednote-page thumbnail-page');
                 wrapper.addEventListener('click', () => {
