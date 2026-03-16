@@ -3,625 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小红书文字分享生成器</title>
+    <title>文字卡片</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
+            background: #fafafa;
             min-height: 100vh;
+            color: #1d1d1f;
         }
 
-        /* 3:4 比例容器 */
-        .rednote-page {
+        /* 极简卡片 */
+        .card {
             width: 375px;
             height: 500px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            overflow: hidden;
-            position: relative;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
             display: flex;
             flex-direction: column;
+            padding: 48px 32px 32px;
         }
 
-        /* 小红书风格配色 */
-        .rednote-header {
-            background: linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%);
-            padding: 20px 16px 16px;
-            color: white;
+        .card-header {
+            margin-bottom: 24px;
         }
 
-        .rednote-content {
-            flex: 1;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            overflow: hidden;
-        }
-
-        .rednote-footer {
-            background: linear-gradient(180deg, transparent 0%, rgba(255,36,66,0.05) 100%);
-            padding: 10px 16px 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: #ff2442;
-            border-top: 1px dashed rgba(255,36,66,0.2);
-            flex-shrink: 0;
-        }
-
-        /* 文字样式 */
-        .content-text {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #333;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .content-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1d1d1f;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
             margin-bottom: 4px;
         }
 
-        .content-subtitle {
-            font-size: 12px;
-            color: rgba(255,255,255,0.9);
+        .card-date {
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
 
-        /* 装饰元素 */
-        .deco-dot {
-            width: 8px;
-            height: 8px;
-            background: #ff2442;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+        .card-content {
+            flex: 1;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #1d1d1f;
+            font-weight: 400;
+            overflow: hidden;
         }
 
-        /* 输入区域 */
-        .editor-panel {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        .card-footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
 
-        /* 预览区域滚动 */
-        .preview-scroll {
-            max-height: calc(100vh - 200px);
-            overflow-y: auto;
-            padding: 20px;
+        /* 极简输入 */
+        input, textarea {
+            background: #f5f5f7;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #1d1d1f;
+            width: 100%;
+            transition: all 0.2s ease;
         }
 
-        /* 页面指示器 */
-        .page-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            background: rgba(255,36,66,0.1);
-            border-radius: 20px;
-            font-size: 12px;
-            color: #ff2442;
+        input:focus, textarea:focus {
+            background: #fff;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+            outline: none;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
             font-weight: 500;
+            color: #86868b;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        /* 自定义滚动条 */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.5);
-            border-radius: 3px;
-        }
-
-        /* 主题色选择 */
-        .theme-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 3px solid transparent;
+        /* 按钮 */
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .theme-btn.active {
-            border-color: #333;
-            transform: scale(1.1);
+        .btn-primary:hover { background: #0077ed; }
+
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        /* 缩略图样式 */
-        .thumbnail-page {
-            transform: scale(0.32);
-            transform-origin: top left;
-            margin-bottom: -340px; /* 500 - 500*0.32 = 340 */
+        .btn-secondary:hover { background: #e8e8ed; }
+
+        /* 滑块 */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 3px;
+            background: #d2d2d7;
+            border-radius: 2px;
         }
 
-        #thumbnails {
-            min-height: 170px;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
 
-        /* 响应式 */
-        @media (max-width: 768px) {
-            .rednote-page {
-                width: 280px;
-                height: 373px;
-            }
-
-            .content-text {
-                font-size: 14px;
-            }
-
-            .content-title {
-                font-size: 18px;
-            }
-
-            .thumbnail-page {
-                transform: scale(0.24);
-                margin-bottom: -283px;
-            }
+        /* 颜色选择 */
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
         }
+
+        .color-btn.active { box-shadow: 0 0 0 2px white, 0 0 0 3px #0071e3; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
-        <!-- 标题 -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">📕 小红书文字分享生成器</h1>
-            <p class="text-white/80">将你的文案转换成精美的 3:4 比例图片，适合发布到小红书</p>
+<body class="p-8 md:p-16">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-medium text-[#1d1d1f] mb-3">文字卡片</h1>
+            <p class="text-[#86868b] text-lg">安静、简单、专注于内容</p>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
-            <!-- 左侧：编辑区 -->
-            <div class="editor-panel p-6">
-                <!-- 主题选择 -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">选择主题色</label>
-                    <div class="flex gap-3" id="themeSelector">
-                        <button class="theme-btn active" data-theme="red" style="background: linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%);"></button>
-                        <button class="theme-btn" data-theme="purple" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);"></button>
-                        <button class="theme-btn" data-theme="blue" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);"></button>
-                        <button class="theme-btn" data-theme="green" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);"></button>
-                        <button class="theme-btn" data-theme="orange" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);"></button>
-                        <button class="theme-btn" data-theme="dark" style="background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);"></button>
-                    </div>
-                </div>
-
-                <!-- 标题输入 -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
-                    <input type="text" id="titleInput" placeholder="输入标题..." value="今日分享"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition">
-                </div>
-
-                <!-- 文案输入 -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">文案内容</label>
-                    <textarea id="contentInput" rows="10" placeholder="在这里输入你的小红书文案..."
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition resize-none"></textarea>
-                    <p class="text-xs text-gray-500 mt-1">内容会自动分页，每页显示适合3:4比例的内容量</p>
-                </div>
-
-                <!-- 字体大小调整 -->
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">字体大小</label>
-                    <input type="range" id="fontSizeSlider" min="14" max="20" value="16"
-                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>小</span>
-                        <span id="fontSizeValue">16px</span>
-                        <span>大</span>
-                    </div>
-                </div>
-
-                <!-- 底部文字 -->
+        <div class="grid lg:grid-cols-2 gap-12">
+            <!-- 编辑区 -->
+            <div class="bg-white rounded-2xl p-8 shadow-sm">
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">底部标识（可选）</label>
-                    <input type="text" id="footerInput" placeholder="例如：@小红书账号" value="小红书"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition">
+                    <label>色调</label>
+                    <div class="flex gap-3" id="themes">
+                        <button class="color-btn active" data-theme="white" style="background:#fff;"></button>
+                        <button class="color-btn" data-theme="warm" style="background:#faf9f7;"></button>
+                        <button class="color-btn" data-theme="gray" style="background:#f5f5f7;"></button>
+                        <button class="color-btn" data-theme="dark" style="background:#1d1d1f;"></button>
+                    </div>
                 </div>
 
-                <!-- 下载按钮 -->
+                <div class="mb-6">
+                    <label>标题</label>
+                    <input type="text" id="title" value="今日分享">
+                </div>
+
+                <div class="mb-6">
+                    <label>内容</label>
+                    <textarea id="content" rows="6" placeholder="输入文字..."></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label>字号</label>
+                    <input type="range" id="size" min="14" max="20" value="17">
+                    <div class="text-[#86868b] text-sm mt-2" id="sizeVal">17px</div>
+                </div>
+
+                <div class="mb-6">
+                    <label>署名</label>
+                    <input type="text" id="author" placeholder="可选">
+                </div>
+
                 <div class="flex gap-3">
-                    <button id="downloadAllBtn"
-                        class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 transition shadow-lg flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        下载全部页面
-                    </button>
-                    <button id="downloadCurrentBtn"
-                        class="flex-1 bg-white border-2 border-purple-600 text-purple-600 py-3 px-4 rounded-lg font-medium hover:bg-purple-50 transition flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        下载当前页
-                    </button>
+                    <button class="btn-primary flex-1" onclick="downloadAll()">下载全部</button>
+                    <button class="btn-secondary flex-1" onclick="downloadCurrent()">下载当前页</button>
                 </div>
             </div>
 
-            <!-- 右侧：预览区 -->
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-white font-semibold text-lg">预览</h2>
-                    <div class="flex items-center gap-2">
-                        <button id="prevPage" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition disabled:opacity-50">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                        </button>
-                        <span id="pageInfo" class="text-white font-medium">1 / 1</span>
-                        <button id="nextPage" class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white transition disabled:opacity-50">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                        </button>
-                    </div>
+            <!-- 预览区 -->
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-4 mb-6">
+                    <button class="btn-secondary px-4" onclick="prev()"><<</button>
+                    <span class="text-[#86868b]"><span id="pageNum">1</span> / <span id="pageTotal">1</span></span>
+                    <button class="btn-secondary px-4" onclick="next()">>></button>
                 </div>
 
-                <!-- 当前页主预览 -->
-                <div class="flex flex-col items-center mb-4" id="mainPreviewContainer">
-                    <!-- 当前预览页面将在这里动态生成 -->
-                </div>
-
-                <!-- 所有页面缩略图 -->
-                <div class="preview-scroll" id="thumbnailContainer">
-                    <p class="text-white/70 text-sm mb-2 text-center">全部页面缩略图</p>
-                    <div class="flex flex-wrap justify-center gap-3" id="thumbnails">
-                        <!-- 缩略图将在这里动态生成 -->
-                    </div>
-                </div>
+                <div id="preview"></div>
             </div>
         </div>
     </div>
 
-    <!-- 隐藏的真实渲染区域（用于截图） -->
-    <div id="captureArea" style="position: absolute; left: -9999px; top: -9999px;"></div>
+    <div id="capture" style="position:fixed;left:-9999px;"></div>
 
     <script>
-        // 状态管理
-        let currentPage = 0;
-        let pages = [];
-        let currentTheme = 'red';
-
-        // 主题配置
         const themes = {
-            red: { header: 'linear-gradient(135deg, #ff2442 0%, #ff6b7a 100%)', accent: '#ff2442' },
-            purple: { header: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)', accent: '#8b5cf6' },
-            blue: { header: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)', accent: '#3b82f6' },
-            green: { header: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)', accent: '#10b981' },
-            orange: { header: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', accent: '#f59e0b' },
-            dark: { header: 'linear-gradient(135deg, #1f2937 0%, #4b5563 100%)', accent: '#1f2937' }
+            white:  { bg: '#ffffff', text: '#1d1d1f', sub: '#86868b' },
+            warm:   { bg: '#faf9f7', text: '#1d1d1f', sub: '#86868b' },
+            gray:   { bg: '#f5f5f7', text: '#1d1d1f', sub: '#86868b' },
+            dark:   { bg: '#1d1d1f', text: '#f5f5f7', sub: '#86868b' }
         };
 
-        // DOM 元素
-        const titleInput = document.getElementById('titleInput');
-        const contentInput = document.getElementById('contentInput');
-        const footerInput = document.getElementById('footerInput');
-        const fontSizeSlider = document.getElementById('fontSizeSlider');
-        const fontSizeValue = document.getElementById('fontSizeValue');
-        const mainPreviewContainer = document.getElementById('mainPreviewContainer');
-        const thumbnailsContainer = document.getElementById('thumbnails');
-        const captureArea = document.getElementById('captureArea');
-        const pageInfo = document.getElementById('pageInfo');
-        const prevPageBtn = document.getElementById('prevPage');
-        const nextPageBtn = document.getElementById('nextPage');
+        let currentTheme = 'white', currentPage = 0, pages = [''];
 
-        // 计算每页可容纳的行数
-        function calculateLinesPerPage(fontSize) {
-            // 375 x 500 像素区域
-            // 标题区域高度约 70px，底部约 44px
-            // 内容区 padding 16px，实际可用高度约 370px
-            const lineHeight = fontSize * 1.8;
-            const availableHeight = 370;
-            return Math.floor(availableHeight / lineHeight);
-        }
+        function update() {
+            const text = document.getElementById('content').value;
+            const size = parseInt(document.getElementById('size').value);
+            document.getElementById('sizeVal').textContent = size + 'px';
 
-        // 计算一段文本实际占用的行数
-        function calculateTextLines(text, fontSize) {
-            const containerWidth = 343; // 375 - 32 (padding)
-            // 中文每个字符宽度约为 fontSize * 0.95
-            // 英文每个字符宽度约为 fontSize * 0.6
-            // 为了简化，使用平均宽度 fontSize * 0.85
-            const avgCharWidth = fontSize * 0.85;
-            const charsPerLine = Math.floor(containerWidth / avgCharWidth);
+            // 简单分页
+            pages = text ? text.split(/\n{2,}/).filter(p => p.trim()) : [''];
+            if (pages.length === 0) pages = [''];
 
-            let totalLines = 0;
-            const paragraphs = text.split('\n');
-
-            for (const paragraph of paragraphs) {
-                if (paragraph.length === 0) {
-                    totalLines += 1; // 空行也算一行
-                } else {
-                    totalLines += Math.ceil(paragraph.length / charsPerLine);
-                }
-            }
-
-            return totalLines;
-        }
-
-        // 将文本分割成页面
-        function splitIntoPages(text, linesPerPage, fontSize) {
-            const pages = [];
-            let remainingText = text.trim();
-
-            if (!remainingText) {
-                return [''];
-            }
-
-            while (remainingText.length > 0) {
-                // 二分查找找到最合适的分割点
-                let low = 0;
-                let high = remainingText.length;
-                let bestCut = 0;
-
-                while (low <= high) {
-                    const mid = Math.floor((low + high) / 2);
-                    const testText = remainingText.substring(0, mid);
-                    const lines = calculateTextLines(testText, fontSize);
-
-                    if (lines <= linesPerPage) {
-                        bestCut = mid;
-                        low = mid + 1;
-                    } else {
-                        high = mid - 1;
-                    }
-                }
-
-                // 确保至少切一个字符
-                if (bestCut === 0 && remainingText.length > 0) {
-                    bestCut = 1;
-                }
-
-                // 在 bestCut 附近寻找更好的分割点（标点符号处）
-                let cutPoint = bestCut;
-                const searchRange = Math.min(30, Math.floor(bestCut * 0.2));
-
-                // 优先在强分隔符处分割
-                for (let i = 0; i < searchRange; i++) {
-                    const idx = bestCut - i - 1;
-                    if (idx <= 0) break;
-
-                    const char = remainingText[idx];
-                    if (['。', '？', '！', '.', '?', '!', '\n'].includes(char)) {
-                        cutPoint = idx + 1;
-                        break;
-                    }
-                }
-
-                // 如果没找到强分隔符，尝试弱分隔符
-                if (cutPoint === bestCut) {
-                    for (let i = 0; i < searchRange; i++) {
-                        const idx = bestCut - i - 1;
-                        if (idx <= 0) break;
-
-                        const char = remainingText[idx];
-                        if (['，', '；', ',', ';', '、', ' '].includes(char)) {
-                            cutPoint = idx + 1;
-                            break;
-                        }
-                    }
-                }
-
-                // 如果剩余内容可以全部放入当前页
-                const remainingLines = calculateTextLines(remainingText, fontSize);
-                if (remainingLines <= linesPerPage) {
-                    pages.push(remainingText);
-                    break;
-                }
-
-                pages.push(remainingText.substring(0, cutPoint));
-                remainingText = remainingText.substring(cutPoint).trim();
-            }
-
-            return pages.length > 0 ? pages : [''];
-        }
-
-        // 生成单页HTML
-        function generatePageHTML(content, pageIndex, totalPages, title, footer, theme) {
-            const themeConfig = themes[theme];
-            return `
-                <div class="rednote-page" data-page="${pageIndex}">
-                    <div class="rednote-header" style="background: ${themeConfig.header};">
-                        <div class="content-title">${title}</div>
-                        <div class="content-subtitle">${new Date().toLocaleDateString('zh-CN')}</div>
-                    </div>
-                    <div class="rednote-content">
-                        <div class="content-text">${content.replace(/\n/g, '<br>')}</div>
-                    </div>
-                    <div class="rednote-footer" style="color: ${themeConfig.accent}; border-top-color: ${themeConfig.accent}33;">
-                        <span class="deco-dot" style="background: ${themeConfig.accent};"></span>
-                        <span>${footer}</span>
-                        ${totalPages > 1 ? `<span style="margin-left: auto;">${pageIndex + 1} / ${totalPages}</span>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        // 更新预览
-        function updatePreview() {
-            const title = titleInput.value || '今日分享';
-            const content = contentInput.value;
-            const footer = footerInput.value || '小红书';
-            const fontSize = parseInt(fontSizeSlider.value);
-
-            if (!content.trim()) {
-                pages = [''];
-            } else {
-                const linesPerPage = calculateLinesPerPage(fontSize);
-                pages = splitIntoPages(content, linesPerPage, fontSize);
-            }
-
-            // 更新页码信息
             currentPage = Math.min(currentPage, pages.length - 1);
-            pageInfo.textContent = `${currentPage + 1} / ${pages.length}`;
-            prevPageBtn.disabled = currentPage === 0;
-            nextPageBtn.disabled = currentPage === pages.length - 1;
+            document.getElementById('pageNum').textContent = currentPage + 1;
+            document.getElementById('pageTotal').textContent = pages.length;
 
-            // 清空预览区和缩略图区
-            mainPreviewContainer.innerHTML = '';
-            thumbnailsContainer.innerHTML = '';
-            captureArea.innerHTML = '';
-
-            // 生成当前页主预览
-            const pageHTML = generatePageHTML(
-                pages[currentPage],
-                currentPage,
-                pages.length,
-                title,
-                footer,
-                currentTheme
-            );
-            mainPreviewContainer.innerHTML = pageHTML;
-
-            // 应用字体大小到主预览
-            const textElements = mainPreviewContainer.querySelectorAll('.content-text');
-            textElements.forEach(el => {
-                el.style.fontSize = fontSize + 'px';
-            });
-
-            // 生成所有页面缩略图
-            pages.forEach((pageContent, index) => {
-                const isCurrentPage = index === currentPage;
-                const thumbnailHTML = generatePageHTML(
-                    pageContent,
-                    index,
-                    pages.length,
-                    title,
-                    footer,
-                    currentTheme
-                );
-
-                // 创建缩略图包装器
-                const wrapper = document.createElement('div');
-                wrapper.className = `cursor-pointer transition transform hover:scale-105 ${isCurrentPage ? 'ring-4 ring-white rounded-lg' : 'opacity-70 hover:opacity-100'}`;
-                wrapper.style.width = '120px';
-                wrapper.innerHTML = thumbnailHTML.replace('rednote-page', 'rednote-page thumbnail-page');
-                wrapper.addEventListener('click', () => {
-                    currentPage = index;
-                    updatePreview();
-                });
-
-                thumbnailsContainer.appendChild(wrapper);
-
-                // 应用字体大小到缩略图
-                const thumbText = wrapper.querySelector('.content-text');
-                if (thumbText) {
-                    thumbText.style.fontSize = fontSize + 'px';
-                }
-            });
-
-            // 为截图区域生成所有页面
-            pages.forEach((pageContent, index) => {
-                captureArea.innerHTML += generatePageHTML(
-                    pageContent,
-                    index,
-                    pages.length,
-                    title,
-                    footer,
-                    currentTheme
-                );
-            });
-
-            // 为截图区域应用字体大小
-            const captureTextElements = captureArea.querySelectorAll('.content-text');
-            captureTextElements.forEach(el => {
-                el.style.fontSize = fontSize + 'px';
-            });
+            render();
         }
 
-        // 下载单页
-        async function downloadPage(pageIndex) {
-            const pages = captureArea.querySelectorAll('.rednote-page');
-            if (pageIndex >= pages.length) return;
+        function render() {
+            const t = themes[currentTheme];
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const size = document.getElementById('size').value;
+            const date = new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g, '.');
 
-            const page = pages[pageIndex];
-
-            try {
-                const canvas = await html2canvas(page, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: null
-                });
-
-                const link = document.createElement('a');
-                link.download = `小红书_${titleInput.value || '分享'}_${pageIndex + 1}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (error) {
-                console.error('下载失败:', error);
-                alert('下载失败，请重试');
-            }
+            document.getElementById('preview').innerHTML = \`
+                \u003cdiv class="card" style="background:\${t.bg};">
+                    \u003cdiv class="card-header"\u003e
+                        \u003cdiv class="card-title" style="color:\${t.text}"\u003e\${title}\u003c/div\u003e
+                        \u003cdiv class="card-date"\u003e\${date}\u003c/div\u003e
+                    \u003c/div\u003e
+                    \u003cdiv class="card-content" style="color:\${t.text};font-size:\${size}px"\u003e
+                        \${pages[currentPage].replace(/\n/g, '\u003cbr\u003e')}
+                    \u003c/div\u003e
+                    \u003cdiv class="card-footer"\u003e\${author || ''}\u003c/div\u003e
+                \u003c/div\u003e
+            \`;
         }
 
-        // 下载所有页面
-        async function downloadAllPages() {
-            const pages = captureArea.querySelectorAll('.rednote-page');
-            if (pages.length === 0) return;
+        function prev() { if (currentPage > 0) { currentPage--; render(); } }
+        function next() { if (currentPage < pages.length - 1) { currentPage++; render(); } }
 
-            for (let i = 0; i < pages.length; i++) {
-                await downloadPage(i);
-                // 添加小延迟避免浏览器阻塞
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
-        }
-
-        // 事件监听
-        titleInput.addEventListener('input', updatePreview);
-        contentInput.addEventListener('input', updatePreview);
-        footerInput.addEventListener('input', updatePreview);
-
-        fontSizeSlider.addEventListener('input', (e) => {
-            fontSizeValue.textContent = e.target.value + 'px';
-            updatePreview();
-        });
-
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 0) {
-                currentPage--;
-                updatePreview();
-            }
-        });
-
-        nextPageBtn.addEventListener('click', () => {
-            if (currentPage < pages.length - 1) {
-                currentPage++;
-                updatePreview();
-            }
-        });
-
-        document.getElementById('downloadCurrentBtn').addEventListener('click', () => {
-            downloadPage(currentPage);
-        });
-
-        document.getElementById('downloadAllBtn').addEventListener('click', () => {
-            downloadAllPages();
-        });
-
-        // 主题选择
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#themes .color-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#themes .color-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentTheme = btn.dataset.theme;
-                updatePreview();
-            });
+                render();
+            };
         });
 
-        // 初始化
-        updatePreview();
+        ['content', 'title', 'author', 'size'].forEach(id => {
+            document.getElementById(id).addEventListener('input', update);
+        });
+
+        async function downloadAll() {
+            for (let i = 0; i < pages.length; i++) {
+                currentPage = i;
+                render();
+                await new Promise(r => setTimeout(r, 100));
+                await downloadCurrent();
+            }
+        }
+
+        async function downloadCurrent() {
+            const el = document.querySelector('.card');
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: null });
+            const link = document.createElement('a');
+            link.download = `卡片_\${currentPage + 1}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        update();
     </script>
 </body>
 </html>
