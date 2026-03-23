@@ -1,41 +1,42 @@
-# 小红书文字分享生成器
+# ✨ newapp - 待办清单 (Todo List)
 
-一个可以将小红书文案转换成精美 3:4 比例图片的在线工具，适合发布到小红书平台。
+一个界面精美、交互流畅的个人待办清单网页应用。
 
-## 功能特点
+![Screenshot](https://via.placeholder.com/800x450.png?text=newapp+Preview)
 
-- 📱 **3:4 比例页面**：完美适配小红书推荐尺寸
-- ✨ **智能分页**：根据内容长度自动分页，每页无滚动条
-- 🎨 **多种主题**：6 种精美配色主题可选（红、紫、蓝、绿、橙、暗黑）
-- 🔤 **字体可调**：支持 14-20px 字体大小调整
-- 💾 **一键下载**：支持下载单页或全部页面为 PNG 图片
-- 📅 **自动日期**：自动添加当前日期
+## 🌟 特性
 
-## 使用方法
+- **高颜值界面**：采用毛玻璃效果 (Backdrop Filter) 和 动态渐变背景。
+- **重要度分级**：支持标记任务为“重要”，并有明显的视觉区分。
+- **本地存储**：任务自动保存至浏览器的 `localStorage`，刷新页面不丢失。
+- **响应式设计**：完美适配手机、平板及电脑屏幕。
+- **自动化部署**：通过 GitHub Actions 自动部署至 GitHub Pages。
 
-1. 直接在浏览器中打开 `index.html` 文件
-2. 在左侧编辑区输入标题和文案内容
-3. 选择合适的主题色和字体大小
-4. 在右侧预览生成的效果
-5. 点击下载按钮保存为 PNG 图片
+## 🚀 快速开始
 
-## 技术栈
+### 本地运行
+由于本项目是纯前端静态应用，你只需克隆仓库并在浏览器中打开 `index.html` 即可运行：
 
-- HTML5 + CSS3
-- Tailwind CSS（CDN）
-- html2canvas（截图功能）
+```bash
+git clone https://github.com/magiczn/newapp.git
+cd newapp
+open index.html
+```
 
-## 文件说明
+## 🛠 部署指南
 
-- `index.html` - 主应用文件
-- `example.txt` - 示例文案参考
+本项目已配置 GitHub Actions 自动部署流程。
 
-## 注意事项
+### 自动化部署步骤
+1. 将代码推送到 GitHub 仓库的 `main` 分支。
+2. 转到仓库的 **Settings > Pages**。
+3. 在 **Build and deployment > Source** 中选择 **GitHub Actions**。
+4. 每次代码推送后，GitHub Actions 会自动构建并发布。
 
-- 文案会自动分页，确保每页内容都能完整显示
-- 截图质量为 2x 高清，适合发布
-- 支持中文内容，自动处理换行和标点
+### 环境变量配置 (可选)
+如果后续需要扩展服务端功能，请参考以下配置：
+- 在 GitHub 仓库的 **Settings > Secrets and variables > Actions** 中添加变量。
+- 模板请参考环境参数说明。
 
-## 预览
-
-打开 `index.html` 即可开始使用。
+## 📄 许可证
+[MIT](LICENSE)

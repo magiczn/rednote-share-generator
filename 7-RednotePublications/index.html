@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字卡片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Noto Sans SC', sans-serif;
+            background: #fafafa;
+            min-height: 100vh;
+            color: #1d1d1f;
+        }
+
+        .card {
+            width: 375px;
+            height: 500px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 48px 32px 32px;
+        }
+
+        .card-header {
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1d1d1f;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .card-date {
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .card-content {
+            flex: 1;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #1d1d1f;
+            font-weight: 400;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        input, textarea {
+            background: #f5f5f7;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #1d1d1f;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, textarea:focus {
+            background: #fff;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.1);
+            outline: none;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #86868b;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover { background: #0077ed; }
+
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover { background: #e8e8ed; }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 3px;
+            background: #d2d2d7;
+            border-radius: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .color-btn.active { box-shadow: 0 0 0 2px white, 0 0 0 3px #0071e3; }
+    </style>
+</head>
+<body class="p-8 md:p-16">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-medium text-[#1d1d1f] mb-3">文字卡片</h1>
+            <p class="text-[#86868b] text-lg">安静、简单、专注于内容</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div class="bg-white rounded-2xl p-8 shadow-sm">
+                <div class="mb-6">
+                    <label>色调</label>
+                    <div class="flex gap-3" id="themes">
+                        <button class="color-btn active" data-theme="white" style="background:#fff;"></button>
+                        <button class="color-btn" data-theme="warm" style="background:#faf9f7;"></button>
+                        <button class="color-btn" data-theme="gray" style="background:#f5f5f7;"></button>
+                        <button class="color-btn" data-theme="dark" style="background:#1d1d1f;"></button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label>标题</label>
+                    <input type="text" id="title" value="今日分享">
+                </div>
+
+                <div class="mb-6">
+                    <label>内容</label>
+                    <textarea id="content" rows="6" placeholder="输入文字..."></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label>字号</label>
+                    <input type="range" id="size" min="14" max="20" value="17">
+                    <div class="text-[#86868b] text-sm mt-2" id="sizeVal">17px</div>
+                </div>
+
+                <div class="mb-6">
+                    <label>署名</label>
+                    <input type="text" id="author" placeholder="可选">
+                </div>
+
+                <div class="flex gap-3">
+                    <button class="btn-primary flex-1" onclick="downloadAll()">下载全部</button>
+                    <button class="btn-secondary flex-1" onclick="downloadCurrent()">下载当前页</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center">
+                <div class="flex items-center gap-4 mb-6">
+                    <button class="btn-secondary px-4" onclick="prev()">&lt;&lt;</button>
+                    <span class="text-[#86868b]"><span id="pageNum">1</span> / <span id="pageTotal">1</span></span>
+                    <button class="btn-secondary px-4" onclick="next()">&gt;&gt;</button>
+                </div>
+
+                <div id="preview"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="capture" style="position:fixed;left:-9999px;"></div>
+
+    <script>
+        const themes = {
+            white:  { bg: '#ffffff', text: '#1d1d1f', sub: '#86868b' },
+            warm:   { bg: '#faf9f7', text: '#1d1d1f', sub: '#86868b' },
+            gray:   { bg: '#f5f5f7', text: '#1d1d1f', sub: '#86868b' },
+            dark:   { bg: '#1d1d1f', text: '#f5f5f7', sub: '#86868b' }
+        };
+
+        let currentTheme = 'white', currentPage = 0, pages = [''];
+
+        // 精确分页 - 基于行数计算
+        function splitPages(text, fontSize) {
+            if (!text.trim()) return [''];
+
+            // 卡片可用空间计算
+            // 卡片高度: 500px
+            // 上下padding: 48 + 32 = 80px
+            // header: ~70px (标题 + 日期 + 间距)
+            // footer: ~50px (署名 + 上边距)
+            // 安全余量: 20px (防止计算误差和渲染差异)
+            // 可用内容高度: 500 - 80 - 70 - 50 - 20 = 280px
+            const availableHeight = 280;
+            const lineHeight = fontSize * 1.7;
+            const maxLines = Math.floor(availableHeight / lineHeight);
+
+            // 内容区域宽度: 375 - 64 = 311px
+            // 每行字符数 (中文约0.85em宽)
+            // 安全余量: 再减1个字符，确保不会触边
+            const charsPerLine = Math.floor(311 / (fontSize * 0.85)) - 1;
+
+            const pages = [];
+            let remaining = text.trim();
+
+            while (remaining.length > 0) {
+                // 估算这一页能放多少字符
+                // 考虑换行符会增加行数
+                let testLength = Math.min(remaining.length, charsPerLine * maxLines);
+                let pageText = remaining.substring(0, testLength);
+
+                // 计算实际行数
+                let lines = calculateLines(pageText, charsPerLine);
+
+                // 如果超出行数限制，减少内容
+                while (lines > maxLines && pageText.length > 10) {
+                    // 往回找合适的分割点
+                    let cutIdx = pageText.length - 1;
+                    const searchRange = Math.min(50, Math.floor(pageText.length * 0.15));
+
+                    for (let i = 0; i < searchRange; i++) {
+                        const idx = pageText.length - i - 1;
+                        if (idx <= 0) break;
+                        const char = pageText[idx];
+                        // 优先在这些位置分割
+                        if (['\n', '。', '！', '？', '.', '!', '?', '，', ','].includes(char)) {
+                            cutIdx = idx + 1;
+                            break;
+                        }
+                    }
+
+                    pageText = pageText.substring(0, cutIdx);
+                    lines = calculateLines(pageText, charsPerLine);
+                }
+
+                pages.push(pageText.trim());
+                remaining = remaining.substring(pageText.length).trim();
+
+                // 防止无限循环
+                if (pageText.length === 0) break;
+            }
+
+            return pages.length > 0 ? pages : [''];
+        }
+
+        // 计算文本实际占用行数
+        function calculateLines(text, charsPerLine) {
+            const paragraphs = text.split('\n');
+            let totalLines = 0;
+
+            for (const p of paragraphs) {
+                if (p.length === 0) {
+                    totalLines += 1; // 空行也算一行
+                } else {
+                    totalLines += Math.ceil(p.length / charsPerLine);
+                }
+            }
+
+            return totalLines;
+        }
+
+        function update() {
+            const text = document.getElementById('content').value;
+            const size = parseInt(document.getElementById('size').value);
+            document.getElementById('sizeVal').textContent = size + 'px';
+
+            pages = splitPages(text, size);
+
+            currentPage = Math.min(currentPage, pages.length - 1);
+            document.getElementById('pageNum').textContent = currentPage + 1;
+            document.getElementById('pageTotal').textContent = pages.length;
+
+            render();
+        }
+
+        function render() {
+            const t = themes[currentTheme];
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const size = document.getElementById('size').value;
+            const date = new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g, '.');
+
+            const html = '<div class="card" style="background:' + t.bg + ';">' +
+                '<div class="card-header">' +
+                    '<div class="card-title" style="color:' + t.text + '">' + escapeHtml(title) + '</div>' +
+                    '<div class="card-date">' + date + '</div>' +
+                '</div>' +
+                '<div class="card-content" style="color:' + t.text + ';font-size:' + size + 'px">' +
+                    escapeHtml(pages[currentPage]).replace(/\n/g, '<br>') +
+                '</div>' +
+                '<div class="card-footer">' + escapeHtml(author || '') + '</div>' +
+            '</div>';
+
+            document.getElementById('preview').innerHTML = html;
+        }
+
+        function prev() { if (currentPage > 0) { currentPage--; updatePageNum(); render(); } }
+        function next() { if (currentPage < pages.length - 1) { currentPage++; updatePageNum(); render(); } }
+
+        function updatePageNum() {
+            document.getElementById('pageNum').textContent = currentPage + 1;
+            document.getElementById('pageTotal').textContent = pages.length;
+        }
+
+        // 防抖函数 - 减少渲染频率
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 延迟更新的版本（用于输入时）
+        const debouncedUpdate = debounce(update, 300);
+
+        document.querySelectorAll('#themes .color-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#themes .color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTheme = btn.dataset.theme;
+                render();
+            };
+        });
+
+        // 立即更新的字段
+        ['title', 'author', 'size'].forEach(id => {
+            document.getElementById(id).addEventListener('input', update);
+        });
+
+        // 内容区域使用防抖 + 支持粘贴
+        const contentEl = document.getElementById('content');
+        contentEl.addEventListener('input', debouncedUpdate);
+        contentEl.addEventListener('paste', (e) => {
+            // 粘贴后立即更新
+            setTimeout(update, 0);
+        });
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        async function downloadAll() {
+            const savedPage = currentPage;
+            for (let i = 0; i < pages.length; i++) {
+                currentPage = i;
+                render();
+                await new Promise(r => setTimeout(r, 100));
+                await downloadCurrent();
+            }
+            currentPage = savedPage;
+            updatePageNum();
+            render();
+        }
+
+        async function downloadCurrent() {
+            const el = document.querySelector('.card');
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: null });
+            const link = document.createElement('a');
+            link.download = '卡片_' + (currentPage + 1) + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        update();
+    </script>
+</body>
+</html>

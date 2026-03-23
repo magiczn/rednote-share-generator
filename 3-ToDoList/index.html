@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提醒事项</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 背景层次 -->
+        <div class="ambient-glow"></div>
+
+        <main class="container">
+            <!-- 标题区 -->
+            <header class="header">
+                <div class="title-group">
+                    <h1 class="title">提醒事项</h1>
+                    <span class="date" id="currentDate"></span>
+                </div>
+                <div class="stats">
+                    <span class="badge" id="taskCount">0</span>
+                </div>
+            </header>
+
+            <!-- 输入区 -->
+            <section class="input-section">
+                <div class="input-wrapper">
+                    <div class="input-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="taskInput"
+                        class="task-input"
+                        placeholder="新建提醒事项"
+                        autocomplete="off"
+                    >
+                    <button class="input-action" id="addBtn" aria-label="添加">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 筛选标签 -->
+            <nav class="filters" role="tablist">
+                <button class="filter-pill active" data-filter="all" role="tab" aria-selected="true">
+                    <span class="filter-dot"></span>
+                    全部
+                </button>
+                <button class="filter-pill" data-filter="active" role="tab" aria-selected="false">
+                    <span class="filter-dot active-dot"></span>
+                    未完成
+                </button>
+                <button class="filter-pill" data-filter="completed" role="tab" aria-selected="false">
+                    <span class="filter-dot completed-dot"></span>
+                    已完成
+                </button>
+                <button class="filter-pill" data-filter="important" role="tab" aria-selected="false">
+                    <span class="filter-dot important-dot"></span>
+                    重要
+                </button>
+            </nav>
+
+            <!-- 任务列表 -->
+            <section class="list-section">
+                <ul class="task-list" id="taskList">
+                    <!-- 动态生成 -->
+                </ul>
+
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-visual">
+                        <div class="empty-ring"></div>
+                        <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                        </svg>
+                    </div>
+                    <p class="empty-title">没有提醒事项</p>
+                    <p class="empty-subtitle">点击上方输入框添加</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部工具栏 -->
+        <footer class="toolbar">
+            <button class="toolbar-btn clear-btn" id="clearCompleted" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+                清除已完成
+            </button>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
